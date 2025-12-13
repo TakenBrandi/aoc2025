@@ -1,6 +1,6 @@
 #!/bin/bash
 
-YEAR=2023
+YEAR=2025
 AOC_BASE_URL="https://adventofcode.com/$YEAR/"
 
 # Function to create a new Advent of Code solution for a given day
@@ -65,7 +65,7 @@ main = do
 "
   echo Creating files...
 
-  echo "$module_template" > "./solutions/$d.hs"
+  echo "$module_template" >"./solutions/$d.hs"
 
   # Create an empty input file
   touch "./inputs/$d.example"
@@ -91,7 +91,7 @@ main = do
       solutions
   main-is: ${d}.hs
 "
-  echo "$cabal_day" >> advent-of-code.cabal
+  echo "$cabal_day" >>advent-of-code.cabal
 
   echo "Created a new Advent of Code solution for day $number."
 }
@@ -132,33 +132,33 @@ fi
 
 while getopts ":d:-:f:ei:p:" opt; do
   case $opt in
-    d)
-      number="$OPTARG"
-      ;;
-    f)
-      run_command=f
-      run_filename="$OPTARG"
-      ;;
-    e)
-      run_command=example
-      ;;
-    i)
-      run_command=input
-      ;;
-    -)
-      run_command="$OPTARG"
-      ;;
-    p)
-      part="$OPTARG"
-      ;;
-    \?)
-      echo "Invalid option: -$OPTARG" >&2
-      exit 1
-      ;;
-    :)
-      echo "Option -$OPTARG requires an argument." >&2
-      exit 1
-      ;;
+  d)
+    number="$OPTARG"
+    ;;
+  f)
+    run_command=f
+    run_filename="$OPTARG"
+    ;;
+  e)
+    run_command=example
+    ;;
+  i)
+    run_command=input
+    ;;
+  -)
+    run_command="$OPTARG"
+    ;;
+  p)
+    part="$OPTARG"
+    ;;
+  \?)
+    echo "Invalid option: -$OPTARG" >&2
+    exit 1
+    ;;
+  :)
+    echo "Option -$OPTARG requires an argument." >&2
+    exit 1
+    ;;
   esac
 done
 
@@ -174,9 +174,9 @@ if [ "$subcommand" == "new" ]; then
   fi
 
   case "$run_command" in
-    no-curl)
-      download=false
-      ;;
+  no-curl)
+    download=false
+    ;;
   esac
 
   create_new_solution "$number"
@@ -198,15 +198,16 @@ elif [ "$subcommand" == "run" ]; then
   fi
 
   case "$run_command" in
-    example)
-      run_filename="./inputs/day-$number.example"
-      ;;
-    input)
-      run_filename="./inputs/day-$number.input"
-      ;;
-    f) ;;
-    *)
-      echo "unknown file. Use -f <file-path> for custom files"
+  example)
+    run_filename="./inputs/day-$number.example"
+    ;;
+  input)
+    run_filename="./inputs/day-$number.input"
+    ;;
+  f) ;;
+  *)
+    echo "unknown file. Use -f <file-path> for custom files"
+    ;;
   esac
 
   run_solution "$number" "$part" "$run_filename"
