@@ -3,6 +3,7 @@ module Main (main) where
 import qualified Data.Attoparsec.ByteString.Char8 as A
 import qualified Data.ByteString                  as B
 import           Data.Either                      (fromRight)
+import           Data.List.Split                  (chunksOf)
 import           System.Environment               (getArgs)
 
 data Range    = Range Int Int
@@ -12,12 +13,21 @@ type Solution = Int
 unwrap :: Range -> [Int]
 unwrap (Range a b) = enumFromTo a b
 
-isInvalid :: Int -> Bool
-isInvalid n =
+isInvalid1 :: Int -> Bool
+isInvalid1 n =
   let
-    cs = show n
-    (cs1, cs2) = splitAt (length cs `div` 2) cs
+    n' = show n
+    (cs1, cs2) = splitAt (length n' `div` 2) n'
   in cs1 == cs2
+
+isInvalid2 :: Int -> Bool
+isInvalid2 n =
+  let
+    n' = show n
+    sizes = [x | x <- [1..length n' `div` 2], length n' `mod` x == 0]
+    chunks = foldr ((:) . (`chunksOf` n')) [] sizes
+    match (c1:cr) = all (==c1) cr
+  in any match chunks
 
 parser :: B.ByteString -> Input
 parser = fromRight [] . A.parseOnly inputP
@@ -25,13 +35,14 @@ parser = fromRight [] . A.parseOnly inputP
     inputP = A.sepBy rangeP (A.char ',')
     rangeP = Range <$> A.decimal <* A.char '-' <*> A.decimal
 
--- | The function which calculates the solution for part one
 solve1 :: Input -> Solution
-solve1 = sum . concatMap (filter isInvalid . unwrap)
+solve1 = solve isInvalid1
 
--- | The function which calculates the solution for part two
 solve2 :: Input -> Solution
-solve2 = error "Part 2 Not implemented"
+solve2 = solve isInvalid2
+
+solve :: (Int -> Bool) -> Input -> Solution
+solve p = sum . concatMap (filter p . unwrap)
 
 main :: IO ()
 main = do
