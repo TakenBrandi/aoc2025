@@ -3,6 +3,7 @@ module Main (main) where
 import qualified Data.Attoparsec.ByteString.Char8 as A
 import qualified Data.ByteString                  as B
 import           Data.Either                      (fromRight)
+import           Data.List.Extra                  (allSame)
 import           Data.List.Split                  (chunksOf)
 import           System.Environment               (getArgs)
 
@@ -14,6 +15,10 @@ unwrap :: Range -> [Int]
 unwrap (Range a b) = enumFromTo a b
 
 isInvalid1 :: Int -> Bool
+-- Maybe someday I'll understand how this works, but for now it's too
+-- clever. I can't figure out how the result of `show` is used twice
+-- once to git the split point ([Char] -> Int) and again for splitAt
+-- isInvalid1 = uncurry (==) . (splitAt =<< (`div` 2) . length) . show
 isInvalid1 n =
   let
     n' = show n
@@ -25,9 +30,8 @@ isInvalid2 n =
   let
     n' = show n
     sizes = [x | x <- [1..length n' `div` 2], length n' `mod` x == 0]
-    chunks = foldr ((:) . (`chunksOf` n')) [] sizes
-    match (c1:cr) = all (==c1) cr
-  in any match chunks
+    chunks = [chunksOf x n' | x <- sizes]
+  in any allSame chunks
 
 parser :: B.ByteString -> Input
 parser = fromRight [] . A.parseOnly inputP

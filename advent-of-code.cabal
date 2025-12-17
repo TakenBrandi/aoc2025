@@ -29,6 +29,7 @@ common deps
     , base >=4.7 && <5
     , bytestring
     , containers
+    , extra
     , matrix
     , vector
     , split
@@ -54,4 +55,10 @@ executable day-2
   hs-source-dirs:
       solutions
   main-is: day-2.hs
+
+executable day-3
+  import: deps
+  hs-source-dirs:
+      solutions
+  main-is: day-3.hs
 
