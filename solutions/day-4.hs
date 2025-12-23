@@ -1,18 +1,43 @@
-module Main where
+module Main (main) where
 
-import           Data.Matrix
-import qualified Debug.Trace        as D
+import qualified Data.Matrix        as M
+import           Data.Maybe         (catMaybes)
 import           System.Environment (getArgs)
 
-type Input    = Matrix Char
+type Input    = M.Matrix Char
 type Solution = Int
 
+(!?) :: M.Matrix a -> (Int, Int) -> Maybe a
+{-# INLINE (!?) #-}
+m !? (i, j) = M.safeGet i j m
+
+getAdjacents :: Int -> Int -> M.Matrix a -> [a]
+getAdjacents i j m =
+  let
+    deltas = [(r,c) | r <- [-1..1], c <- [-1..1], (r,c) /= (0,0)]
+    cells = foldr (\(dr, dc) -> ((i+dr,j+dc):)) [] deltas
+  in
+    catMaybes $ foldr (\c -> ((m !? c):)) [] cells
+
+adjacentMatrix :: M.Matrix Char -> M.Matrix [Char]
+adjacentMatrix m = M.matrix (M.nrows m) (M.ncols m) go
+  where go (i, j) = getAdjacents i j m
+
 parser :: String -> Input
-parser = fromLists . lines
+parser = M.fromLists . lines
 
 -- | The function which calculates the solution for part one
-solve1 :: Matrix Char -> Int
-solve1 m = D.trace (prettyMatrix m) 0
+solve1 :: M.Matrix Char -> Int
+solve1 m =
+  let
+    counts = fmap (length . filter (== '@')) (adjacentMatrix m)
+    marks (i, j) =
+      if (m M.! (i,j)) == '@' && (counts M.! (i, j)) < 4
+        then 'x'
+        else m M.! (i,j)
+    chars = M.matrix (M.nrows m) (M.ncols m) marks
+  in
+    foldr (\c i -> if c == 'x' then i + 1 else i) 0 chars
 
 -- | The function which calculates the solution for part two
 solve2 :: Input -> Solution
